@@ -1,0 +1,3 @@
+[submodule "src/zecsi"]
+	path = src/zecsi
+	url = https://github.com/ryupold/zecsi
