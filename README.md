@@ -17,7 +17,7 @@ All assets are placed in the `assets` folder and referenced in systems via `asse
 
 ### dependencies
 - git
-- zig
+- [zig (0.9.1)](https://ziglang.org/documentation/0.9.1/)
 - [emscripten sdk](https://emscripten.org/)
 
 ```
