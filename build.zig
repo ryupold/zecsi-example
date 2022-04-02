@@ -121,6 +121,7 @@ pub fn build(b: *std.build.Builder) !void {
                 outdir ++ "game.html",
                 zesciSrc++"emscripten/entry.c",
                 zesciSrc++"emscripten/raylib_marshall.c",
+                zesciSrc++"emscripten/raylib_marshall_gen.c",
                 // outdir ++ "libraylib.a",
                 outdir ++ "lib"++APP_NAME++".a",
                 "-I.",
@@ -173,6 +174,7 @@ pub fn build(b: *std.build.Builder) !void {
             exe.addIncludeDir("src/zecsi/raylib/src/");
             exe.addIncludeDir("src/zecsi/emscripten/");
             exe.addCSourceFile("src/zecsi/emscripten/raylib_marshall.c", &.{});
+            exe.addCSourceFile("src/zecsi/emscripten/raylib_marshall_gen.c", &.{});
 
             switch (raylib.target.getOsTag()) {
                 //dunno why but macos target needs sometimes 2 tries to build

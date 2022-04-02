@@ -255,7 +255,7 @@ pub const TreeSystem = struct {
         }).int();
 
         r.DrawText(
-            @ptrCast([*c]const u8, text),
+            text,
             textPos.x,
             textPos.y,
             @floatToInt(i32, 20 * 1.0 / camSystem.zoom()),

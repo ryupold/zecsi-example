@@ -15,6 +15,15 @@ All assets are placed in the `assets` folder and referenced in systems via `asse
 
 ## BUILD
 
+### dependencies
+- git
+- zig
+- [emscripten sdk](https://emscripten.org/)
+
+```
+git clone --recurse-submodules https://github.com/ryupold/zecsi-example
+```
+
 ### run locally
 
 ```sh
