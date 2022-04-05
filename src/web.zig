@@ -17,7 +17,7 @@ pub export fn emsc_main() callconv(.C) c_int {
     };
 }
 
-pub export fn emsc_set_window_size(width: usize, height: usize) callconv(.C) void {
+pub export fn emsc_set_window_size(width: i32, height: i32) callconv(.C) void {
     game.setWindowSize(width, height);
 }
 
@@ -26,7 +26,10 @@ fn safeMain() !c_int {
     const allocator = zalloc.allocator();
     try log.infoAlloc(allocator, "starting da game  ...", .{});
 
-    try game.init(allocator, .{ .cwd = "" });
+    try game.init(allocator, .{
+        .cwd = "",
+        .gameName = "zecsi-example",
+    });
     try @import("game.zig").start(game.getECS());
     defer game.deinit();
 

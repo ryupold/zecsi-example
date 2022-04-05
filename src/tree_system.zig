@@ -37,7 +37,6 @@ pub const Tree = struct {
     timeInState: f32 = 0,
 
     offsetInCell: Vector2 = Vector2.zero(),
-    drawSize: f32 = GridPlacementSystem.cellSize,
 
     pub fn changeState(self: *@This(), state: TreeState) void {
         self.state = state;
@@ -106,6 +105,7 @@ pub const TreeSystem = struct {
     treeTex: *AssetLink,
     fireTex: *AssetLink,
     rng: std.rand.Random,
+    grid: *GridPlacementSystem,
     timer: Timer = .{ .time = 2, .repeat = true },
     treeDrawCache: std.ArrayList(TreeDrawInfo),
     treeConfig: *AssetLink,
@@ -122,8 +122,10 @@ pub const TreeSystem = struct {
         var system = @This(){
             .ecs = ecs,
             .rng = random.random(),
+
             .treeMap = TreeGrid.init(ecs.allocator),
             .treeDrawCache = std.ArrayList(TreeDrawInfo).init(ecs.allocator),
+            .grid = ecs.getSystem(GridPlacementSystem).?,
             .treeTex = try ass.loadTextureAtlas("assets/images/plants/tree_1.png", 6, 1),
             .fireTex = try ass.loadTextureAtlas("assets/images/effects/fire_1.png", 3, 1),
             .treeConfig = try ass.loadJson("assets/data/plants/tree_planting.json"),
@@ -168,6 +170,7 @@ pub const TreeSystem = struct {
             try self.burnTreeAt(r.GetTouchPosition(0).lerp(r.GetTouchPosition(1), 0.5));
         }
 
+        const cellSize = self.grid.cellSize();
         self.treeDrawCache.clearRetainingCapacity();
         var it = self.ecs.query(.{ GridPosition, Tree, Health });
         while (it.next()) |entity| {
@@ -212,7 +215,7 @@ pub const TreeSystem = struct {
 
             if (health.hp <= 0 and tree.state != .Dead) {
                 tree.changeState(.{ .Dead = .{
-                    .sizeFactor = randomF32(rng, 0.7, 1.2),
+                    .sizeFactor = randomF32(rng, 0.7, 1.35),
                 } });
                 self.treesDead += 1;
                 try self.ecs.removeAll(entity, Fire);
@@ -228,10 +231,11 @@ pub const TreeSystem = struct {
 
         for (self.treeDrawCache.items) |x| {
             self.drawTree(
-                grid.toWorldPosition(x.pos),
+                self.grid.toWorldPosition(x.pos),
                 x.tree,
                 x.health,
                 self.ecs.getOnePtr(x.id, Fire),
+                cellSize
             );
         }
 
@@ -266,7 +270,7 @@ pub const TreeSystem = struct {
     fn burnTreeAt(self: *@This(), pos: Vector2) !void {
         const camSystem: *camera.CameraSystem = self.ecs.getSystem(camera.CameraSystem).?;
         const camFix = camSystem.screenToWorld(pos);
-        const gridPos: GridPosition = grid.toGridPosition(camFix);
+        const gridPos: GridPosition = self.grid.toGridPosition(camFix);
 
         if (self.treeMap.getPtr(gridPos)) |treeList| {
             if (treeList.items.len == 0) return;
@@ -316,7 +320,7 @@ pub const TreeSystem = struct {
         const camSystem: *camera.CameraSystem = self.ecs.getSystem(camera.CameraSystem).?;
         const camFix = camSystem.screenToWorld(pos);
 
-        const gridPos: GridPosition = grid.toGridPosition(camFix);
+        const gridPos: GridPosition = self.grid.toGridPosition(camFix);
 
         var list: *TreeGridCell =
             (try self.treeMap.getOrPutValue(gridPos, TreeGridCell.init(self.ecs.allocator))).value_ptr;
@@ -326,7 +330,7 @@ pub const TreeSystem = struct {
             var tree = Tree{
                 .id = e.id,
                 .offsetInCell = Vector2.randomInUnitCircle(self.rng).clampX(-0.9, 0.9).scale(
-                    GridPlacementSystem.cellSize / 2,
+                    self.grid.cellSize() / 2,
                 ),
             };
             //optical fix so that the tree is drawn inside the cell
@@ -343,7 +347,7 @@ pub const TreeSystem = struct {
 
     //=== DRAW ====================================================================================
 
-    fn drawTree(self: *@This(), pos: Vector2, tree: Tree, health: Health, fire: ?*Fire) void {
+    fn drawTree(self: *@This(), pos: Vector2, tree: Tree, health: Health, fire: ?*Fire, cellSize: f32) void {
         const index: u32 = switch (tree.state) {
             .Seed => 0,
             .Sapling => 1,
@@ -352,7 +356,7 @@ pub const TreeSystem = struct {
             .Dead => 5,
         };
         const treePos = pos.add(tree.offsetInCell);
-        var drawSize = Vector2{ .x = tree.drawSize, .y = tree.drawSize };
+        var drawSize = Vector2{ .x = cellSize, .y = cellSize };
         if (tree.state == .Mature)
             drawSize = drawSize.scale(tree.state.Mature.sizeFactor);
         self.treeTex.asset.TextureAtlas.drawEasy(index, treePos, drawSize);

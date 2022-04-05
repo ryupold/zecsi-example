@@ -31,11 +31,18 @@ pub fn main() anyerror!void {
     //remove to prevent resizing of window
     r.SetConfigFlags(.FLAG_WINDOW_RESIZABLE);
     var frame: usize = 0;
-    var lastWindowSize: struct { w: u32 = 0, h: u32 = 0 } = .{};
+    var lastWindowSize: struct { w: i32 = 0, h: i32 = 0 } = .{};
 
     // game start/stop
     log.info("starting game...", .{});
-    try game.init(allocator, .{ .cwd = cwd });
+    try game.init(allocator, .{
+        .gameName = "zecsi-example",
+        .cwd = cwd,
+        .initialWindowSize = .{
+            .width = 800,
+            .height = 800,
+        }
+    });
 
     try @import("game.zig").start(game.getECS());
 
@@ -48,11 +55,11 @@ pub fn main() anyerror!void {
 
     while (!r.WindowShouldClose()) {
         if (frame % updateWindowSizeEveryNthFrame == 0) {
-            const newW = @intCast(u32, r.GetScreenWidth());
-            const newH = @intCast(u32, r.GetScreenHeight());
+            const newW = r.GetScreenWidth();
+            const newH = r.GetScreenHeight();
             if (newW != lastWindowSize.w or newH != lastWindowSize.h) {
                 log.debug("changed screen size {d}x{x}", .{ newW, newH });
-                game.setWindowSize(@intCast(usize, newW), @intCast(usize, newH));
+                game.setWindowSize(newW, newH);
                 lastWindowSize.w = newW;
                 lastWindowSize.h = newH;
             }
