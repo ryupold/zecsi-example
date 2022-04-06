@@ -230,18 +230,16 @@ pub const TreeSystem = struct {
         sortTreesForDrawing(&self.treeDrawCache);
 
         for (self.treeDrawCache.items) |x| {
-            self.drawTree(
-                self.grid.toWorldPosition(x.pos),
-                x.tree,
-                x.health,
-                self.ecs.getOnePtr(x.id, Fire),
-                cellSize
-            );
+            self.drawTree(self.grid.toWorldPosition(x.pos), x.tree, x.health, self.ecs.getOnePtr(x.id, Fire), cellSize);
         }
 
         if (self.timer.tick(dt)) {}
 
         try self.drawTreeConfig();
+    }
+
+    pub fn after(_: *@This(), _: f32) !void {
+        r.DrawFPS(10, 10);
     }
 
     fn drawTreeConfig(self: *@This()) !void {
