@@ -3,7 +3,7 @@ const fs = std.fs;
 
 pub const APP_NAME = "zecsi-examples";
 
-const raylibSrc = "src/zecsi/raylib/src/";
+const raylibSrc = "src/zecsi/raylib/raylib/src/";
 const zesciSrc = "src/zecsi/";
 const webOutdir = "zig-out/web/";
 
@@ -168,10 +168,10 @@ pub fn build(b: *std.build.Builder) !void {
             exe.setTarget(target);
             exe.setBuildMode(mode);
 
-            const rayBuild = @import("src/zecsi/raylib/src/build.zig");
+            const rayBuild = @import("src/zecsi/raylib/raylib/src/build.zig");
             const raylib = rayBuild.addRaylib(b, target);
             exe.linkLibrary(raylib);
-            exe.addIncludeDir("src/zecsi/raylib/src/");
+            exe.addIncludeDir(raylibSrc);
             exe.addIncludeDir("src/zecsi/emscripten/");
             exe.addCSourceFile("src/zecsi/emscripten/raylib_marshall.c", &.{});
             exe.addCSourceFile("src/zecsi/emscripten/raylib_marshall_gen.c", &.{});
