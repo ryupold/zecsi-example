@@ -162,9 +162,9 @@ pub const TreeSystem = struct {
 
         if (r.GetTouchPointCount() == 1) {
             if (self._singleFingerTouchedFrames > 40) try self.createTreeAt(r.GetTouchPosition(0));
-        } else if (r.IsMouseButtonDown(0)) {
+        } else if (r.IsMouseButtonDown(.MOUSE_BUTTON_LEFT)) {
             try self.createTreeAt(r.GetMousePosition());
-        } else if (r.IsMouseButtonDown(1)) {
+        } else if (r.IsMouseButtonDown(.MOUSE_BUTTON_RIGHT)) {
             try self.burnTreeAt(r.GetMousePosition());
         } else if (r.GetTouchPointCount() == 2) {
             try self.burnTreeAt(r.GetTouchPosition(0).lerp(r.GetTouchPosition(1), 0.5));

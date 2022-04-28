@@ -29,7 +29,7 @@ pub fn main() anyerror!void {
     log.info("current path: {s}", .{cwd});
 
     //remove to prevent resizing of window
-    r.SetConfigFlags(@enumToInt(r.ConfigFlags.FLAG_WINDOW_RESIZABLE));
+    r.SetConfigFlags(.FLAG_WINDOW_RESIZABLE);
     var frame: usize = 0;
     var lastWindowSize: struct { w: i32 = 0, h: i32 = 0 } = .{};
 

@@ -24,8 +24,8 @@ pub fn build(b: *std.build.Builder) !void {
 
             std.log.info("building for emscripten\n", .{});
             if (b.sysroot == null) {
-                std.log.err("Please build with 'zig build -Dtarget=wasm32-wasi --sysroot \"$EMSDK/upstream/emscripten\"", .{});
-                @panic("error.SysRootExpected");
+                std.log.err("\n\nUSAGE: Please build with 'zig build -Drelease-small -Dtarget=wasm32-wasi --sysroot \"$EMSDK/upstream/emscripten\"'\n\n", .{});
+                return error.SysRootExpected;
             }
             const lib = b.addStaticLibrary(APP_NAME, "src/web.zig");
             lib.addIncludeDir(raylibSrc);
@@ -170,6 +170,7 @@ pub fn build(b: *std.build.Builder) !void {
             const raylib = rayBuild.addRaylib(b, target);
             exe.linkLibrary(raylib);
             exe.addIncludeDir(raylibSrc);
+            exe.addIncludeDir(raylibSrc ++ "extras/");
             exe.addIncludeDir(zesciSrc ++ "raylib/");
             exe.addCSourceFile(zesciSrc ++ "raylib/marshal.c", &.{});
 
@@ -182,6 +183,14 @@ pub fn build(b: *std.build.Builder) !void {
                     exe.linkFramework("CoreAudio");
                     exe.linkFramework("CoreVideo");
                     exe.linkFramework("IOKit");
+                },
+                .linux => {
+                    exe.addLibPath("/usr/lib64/");
+                    exe.linkSystemLibrary("GL");
+                    exe.linkSystemLibrary("rt");
+                    exe.linkSystemLibrary("dl");
+                    exe.linkSystemLibrary("m");
+                    exe.linkSystemLibrary("X11");
                 },
                 else => {},
             }
