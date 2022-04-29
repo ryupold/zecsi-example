@@ -4,7 +4,7 @@ const emsdk = @cImport({
     @cDefine("__EMSCRIPTEN__", "1");
     @cInclude("emscripten/emscripten.h");
 });
-const zecsi = @import("zecsi/main.zig");
+const zecsi = @import("zecsi/zecsi.zig");
 const game = zecsi.game;
 const log = zecsi.log;
 const ZecsiAllocator = zecsi.ZecsiAllocator;

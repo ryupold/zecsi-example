@@ -1,5 +1,5 @@
 const std = @import("std");
-const zecsi = @import("zecsi/main.zig");
+const zecsi = @import("zecsi/zecsi.zig");
 const Allocator = std.mem.Allocator;
 const game = zecsi.game;
 const log = zecsi.log;
