@@ -1,6 +1,7 @@
 const std = @import("std");
 const zecsi = @import("zecsi/zecsi.zig");
 const log = zecsi.log;
+const drawArrow = zecsi.utils.drawArrow;
 const ECS = zecsi.ECS;
 const Entity = zecsi.Entity;
 const EntityID = zecsi.EntityID;
@@ -27,14 +28,19 @@ pub const PhysicsSystem = struct {
         while (enities.next()) |entity| {
             var body = entity.getData(self.ecs, components.PhysicsBody).?;
             if (body.force.x != 0 and body.force.y != 0) {
-                // log.debug("force = ({d},{d})", .{body.force.x, body.force.y});
-                body.velocity.addSet(body.force.scale(dt / body.mass));
+                const force = body.force.scale(1 / body.mass);
+                drawArrow(
+                    body.position,
+                    body.position.add(force),
+                    .{ .color = raylib.BLUE.set(.{ .a = 127 }) },
+                );
+
+                body.velocity.addSet(force.scale(dt));
                 body.force.setZero();
             }
+            drawArrow(body.position, body.position.add(body.velocity), .{ .color = raylib.GREEN.set(.{ .a = 127 }) });
 
             body.position.addSet(body.velocity.scale(dt));
-
-           
         }
     }
 };

@@ -8,7 +8,7 @@ const assets = zecsi.assets;
 const CameraSystem = zecsi.baseSystems.CameraSystem;
 const AssetSystem = zecsi.baseSystems.AssetSystem;
 const AssetLink = assets.AssetLink;
-const MouseDragger = zecsi.inputHandlers.MouseDragger;
+const PointerDragger = zecsi.inputHandlers.PointerDragger;
 const components = @import("components.zig");
 
 const raylib = zecsi.raylib;
@@ -21,7 +21,7 @@ pub const CelestialSpawnSystem = struct {
     ecs: *ECS,
     camera: *CameraSystem,
     previousTouchPointCount: i32 = 0,
-    mouse: MouseDragger = MouseDragger{ .button = .MOUSE_BUTTON_LEFT },
+    mouse: PointerDragger = PointerDragger{ .button = .MOUSE_BUTTON_LEFT },
     rng: std.rand.Random = undefined,
 
     pub fn init(ecs: *ECS) !@This() {
