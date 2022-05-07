@@ -66,5 +66,6 @@ pub fn main() anyerror!void {
         }
         frame += 1;
         try game.mainLoop();
+        r.DrawFPS(10, 10);
     }
 }

@@ -46,4 +46,5 @@ fn safeMain() !c_int {
 
 export fn gameLoop() callconv(.C) void {
     game.mainLoop() catch unreachable;
+    zecsi.raylib.DrawFPS(10, 10);
 }
