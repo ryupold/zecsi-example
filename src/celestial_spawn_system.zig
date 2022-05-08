@@ -20,22 +20,34 @@ const Texture2D = raylib.Texture2D;
 pub const CelestialSpawnSystem = struct {
     ecs: *ECS,
     camera: *CameraSystem,
+    assets: *zecsi.baseSystems.AssetSystem,
     previousTouchPointCount: i32 = 0,
     mouse: PointerDragger = PointerDragger{ .button = .MOUSE_BUTTON_LEFT },
     rng: std.rand.Random = undefined,
+    spawnTimer: zecsi.utils.Timer = .{ .repeat = true, .time = 0.1 },
 
     pub fn init(ecs: *ECS) !@This() {
         return @This(){
             .ecs = ecs,
             .camera = ecs.getSystem(CameraSystem).?,
+            .assets = ecs.getSystem(zecsi.baseSystems.AssetSystem).?,
         };
     }
 
     pub fn deinit(_: *@This()) void {}
 
-    pub fn update(self: *@This(), _: f32) !void {
+    pub fn update(self: *@This(), dt: f32) !void {
         try self.spawnPlanets();
         try self.removePlanets();
+
+        if (raylib.IsMouseButtonDown(.MOUSE_BUTTON_RIGHT) and self.spawnTimer.tick(dt)) {
+            const min = self.camera.screenToWorld(.{ .x = 0, .y = 0 });
+            const max = self.camera.screenToWorld(.{ .x = self.ecs.window.size.x, .y = self.ecs.window.size.y });
+
+            const position = zecsi.utils.randomVector2(self.rng, min, max);
+
+            try self.createPlanet(10, 10, position, .{});
+        }
     }
 
     pub fn spawnCelestial(self: *@This(), appearance: components.Appearance, density: f32, radius: f32, position: Vector2, velocity: Vector2) !EntityID {
@@ -88,26 +100,12 @@ pub const CelestialSpawnSystem = struct {
             );
 
             if (self.mouse.isReleased()) {
-                try self.createPlanet(self.rng, from, velocity);
+                const radius =
+                    zecsi.utils.randomF32(self.rng, 5, 30);
+                const density = zecsi.utils.randomF32(self.rng, 30, 30);
+                try self.createPlanet(radius, density, from, velocity);
             }
         }
-
-        // const touchPointCount = raylib.GetTouchPointCount();
-        // defer self.previousTouchPointCount = touchPointCount;
-
-        // if (raylib.IsMouseButtonPressed(.MOUSE_BUTTON_LEFT) or (self.previousTouchPointCount == 1 and touchPointCount == 0)) {
-        //     var random = std.rand.DefaultPrng.init(@intCast(u64, std.time.milliTimestamp()));
-        //     const rng = random.random();
-        //     const position = if (raylib.IsMouseButtonPressed(.MOUSE_BUTTON_LEFT))
-        //         raylib.GetMousePosition()
-        //     else
-        //         raylib.GetTouchPosition(0);
-
-        //     const camera = self.ecs.getSystem(CameraSystem).?;
-        //     const worldPos = camera.screenToWorld(position);
-
-        //     try self.createPlanet(rng, worldPos, raylib.Vector2.randomInUnitCircle(rng).scale(zecsi.utils.randomF32(rng, 1, 10)));
-        // }
     }
 
     fn removePlanets(self: *@This()) !void {
@@ -115,11 +113,14 @@ pub const CelestialSpawnSystem = struct {
     }
 
     //--- Testing stuff ---------------------------------------------------------------------------
-    fn createPlanet(self: *@This(), rng: std.rand.Random, position: raylib.Vector2, velocity: raylib.Vector2) !void {
+    fn createPlanet(self: *@This(), radius: f32, density: f32, position: raylib.Vector2, velocity: raylib.Vector2) !void {
         _ = try self.spawnCelestial(
-            .{ .name = "Earth", .bodyTex = raylib.LoadTexture("assets/images/celestials/earth.png") },
-            zecsi.utils.randomF32(rng, 30, 30),
-            zecsi.utils.randomF32(rng, 5, 30),
+            .{
+                .name = "Earth",
+                .bodyTex = (try self.assets.loadTexture("assets/images/celestials/earth.png")).asset.Texture2D,
+            },
+            density,
+            radius,
             position,
             velocity,
         );

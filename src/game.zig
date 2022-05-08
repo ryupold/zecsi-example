@@ -33,7 +33,7 @@ pub fn start(ecs: *ECS) !void {
 
     // try createSun(ecs, .{ .x = -100, .y = 0 });
     // try createSun(ecs, .{ .x = 100, .y = 0 });
-    try createSun(ecs, .{ .x = 0, .y = 0 });
+    // try createSun(ecs, .{ .x = 0, .y = 0 });
 }
 
 fn createSun(ecs: *ECS, position: raylib.Vector2) !void {

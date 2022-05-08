@@ -2,6 +2,7 @@ const std = @import("std");
 const zecsi = @import("zecsi/zecsi.zig");
 const log = zecsi.log;
 const ECS = zecsi.ECS;
+const drawArrow = zecsi.utils.drawArrow;
 const Entity = zecsi.Entity;
 const EntityID = zecsi.EntityID;
 const assets = zecsi.assets;
@@ -19,6 +20,8 @@ const components = @import("components.zig");
 /// if two celestials collide it combines their mass and appearance
 pub const CelestialSystem = struct {
     ecs: *ECS,
+
+    _drawDebugArrows: bool = @import("builtin").mode == .Debug,
 
     pub fn init(ecs: *ECS) !@This() {
         return @This(){
@@ -48,6 +51,23 @@ pub const CelestialSystem = struct {
                 .height = celestial.radius * 2,
             };
             raylib.DrawTexturePro(appearance.bodyTex, src, dest, .{ .x = celestial.radius, .y = celestial.radius }, 0, raylib.WHITE);
+
+            if (self._drawDebugArrows) {
+                drawArrow(
+                    body.position,
+                    body.position.add(body.force),
+                    .{ .color = raylib.BLUE.set(.{ .a = 127 }) },
+                );
+                drawArrow(
+                    body.position,
+                    body.position.add(body.velocity),
+                    .{ .color = raylib.GREEN.set(.{ .a = 127 }) },
+                );
+            }
+        }
+
+        if (raylib.IsKeyReleased(.KEY_G)) {
+            self._drawDebugArrows = !self._drawDebugArrows;
         }
     }
 };
