@@ -10,11 +10,15 @@ pub const Celestial = struct {
     radius: f32,
 
     pub fn mass(self: @This()) f32 {
-        return self.area() * self.density;
+        return self.volume() * self.density;
     }
 
     pub fn area(self: @This()) f32 {
         return self.radius * self.radius * raylib.PI;
+    }
+
+    pub fn volume(self: @This()) f32 {
+        return self.radius * self.radius * self.radius * raylib.PI;
     }
 };
 

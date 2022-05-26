@@ -19,7 +19,7 @@ const Celestial = components.Celestial;
 /// applies gravity mechanics to all celestials
 pub const GravitySystem = struct {
     /// gravitational constant
-    pub const G: f32 = 1;
+    pub const G: f32 = 0.03;
     ecs: *ECS,
 
     pub fn init(ecs: *ECS) !@This() {
@@ -55,22 +55,36 @@ pub const GravitySystem = struct {
                 const delta = body.position.sub(otherBody.position);
 
                 if (delta.x != 0 and delta.y != 0) {
-                    const force = delta.normalize().scale(G * (mass * otherBody.mass) / delta.length2());
+                    const force = newtonStyle(mass, otherBody.mass, delta);
+
                     //apply it toward this celestial
                     // raylib.PhysicsAddForce(otherCelestial.body, force);
                     otherBody.force.addSet(force);
                 }
 
+                //=== Collision =================
                 if (body.mass > otherBody.mass) {
                     const collide = raylib.CheckCollisionCircles(body.position, celestial.radius, otherBody.position, otherCelestial.radius);
                     if (collide) {
-                        celestial.radius += celestial.radius * (otherCelestial.area() / celestial.area());
+                        celestial.radius += celestial.radius * (otherCelestial.mass() / celestial.mass());
                         //TODO: what about density?
                         body.mass = celestial.mass();
                         _ = try self.ecs.destroy(other);
+
+                        body.velocity = body.velocity.scale(1 - (otherBody.mass / body.mass)).add(otherBody.velocity.scale(otherBody.mass / body.mass));
                     }
                 }
             }
         }
+    }
+
+    fn newtonStyle(m1: f32, m2: f32, delta: Vector2) Vector2 {
+        const force = delta.normalize().scale(G * (m1 * m2) / delta.length2());
+        return force;
+    }
+
+    fn newton2D(m1: f32, m2: f32, delta: Vector2) Vector2 {
+        const force = delta.normalize().scale(2 * G * (m1 * m2) / delta.length());
+        return force;
     }
 };

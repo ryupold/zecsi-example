@@ -19,6 +19,7 @@ pub fn start(ecs: *ECS) !void {
     _ = try ecs.registerSystem(base.AssetSystem);
     _ = try ecs.registerSystem(base.GridPlacementSystem);
     var cameraSystem = try ecs.registerSystem(base.CameraSystem);
+    _ = cameraSystem;
     cameraSystem.initMouseDrag(base.CameraMouseDrag{ .button = .MOUSE_BUTTON_MIDDLE });
     cameraSystem.initMouseZoomScroll(base.CameraScrollZoom{ .factor = 0.1 });
     cameraSystem.initTouchZoomAndDrag(base.TwoFingerZoomAndDrag{ .factor = 0.5 });
@@ -33,7 +34,9 @@ pub fn start(ecs: *ECS) !void {
 
     // try createSun(ecs, .{ .x = -100, .y = 0 });
     // try createSun(ecs, .{ .x = 100, .y = 0 });
-    // try createSun(ecs, .{ .x = 0, .y = 0 });
+    try createSun(ecs, .{ .x = 0, .y = 0 });
+
+    // spawnSystem.spawnCelestial(components.Appearance, density: f32, radius: f32, position: Vector2, velocity: Vector2)
 }
 
 fn createSun(ecs: *ECS, position: raylib.Vector2) !void {

@@ -22,6 +22,7 @@ pub const CelestialSystem = struct {
     ecs: *ECS,
 
     _drawDebugArrows: bool = @import("builtin").mode == .Debug,
+    _debugEntityCount: usize = 0,
 
     pub fn init(ecs: *ECS) !@This() {
         return @This(){
@@ -33,7 +34,9 @@ pub const CelestialSystem = struct {
 
     pub fn update(self: *@This(), _: f32) !void {
         var enities = self.ecs.query(.{ components.Celestial, components.PhysicsBody, components.Appearance });
+        self._debugEntityCount = 0;
         while (enities.next()) |entity| {
+            self._debugEntityCount += 1;
             const celestial = entity.getData(self.ecs, components.Celestial).?;
             const body = entity.getData(self.ecs, components.PhysicsBody).?;
             const appearance = entity.getData(self.ecs, components.Appearance).?;
@@ -55,7 +58,7 @@ pub const CelestialSystem = struct {
             if (self._drawDebugArrows) {
                 drawArrow(
                     body.position,
-                    body.position.add(body.force),
+                    if (body.force.length2() > 1) body.position.add(body.force.scale(1 / body.force.length2())) else body.position.add(body.force.normalize().scale(body.force.length2() * 100)),
                     .{ .color = raylib.BLUE.set(.{ .a = 127 }) },
                 );
                 drawArrow(
@@ -68,6 +71,20 @@ pub const CelestialSystem = struct {
 
         if (raylib.IsKeyReleased(.KEY_G)) {
             self._drawDebugArrows = !self._drawDebugArrows;
+        }
+    }
+
+    pub fn ui(self: *@This(), _: f32) !void {
+        var texBuf: [4096]u8 = undefined;
+        const text = try std.fmt.bufPrintZ(&texBuf, "{d} celestials", .{self._debugEntityCount});
+        raylib.DrawText(text, @floatToInt(i32, self.ecs.window.size.x - 150), @floatToInt(i32, self.ecs.window.size.y - 30), 20, raylib.GREEN);
+
+        // var buf : [4096]u8 = undefined;
+        // const text = try std.fmt.bufPrintZ(&buf, "", .{});
+        if (raylib.GuiButton(.{ .x = 20, .y = self.ecs.window.size.y - 50, .width = 70, .height = 30 }, if (!self._drawDebugArrows) "[ ] debug" else "[x] debug")) {
+            self._drawDebugArrows = !self._drawDebugArrows;
+            var gravitySystem = self.ecs.getSystem(zecsi.baseSystems.GridPlacementSystem).?;
+            gravitySystem.isGridVisible = self._drawDebugArrows;
         }
     }
 };
