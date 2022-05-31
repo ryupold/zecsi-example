@@ -79,8 +79,6 @@ pub const CelestialSystem = struct {
         const text = try std.fmt.bufPrintZ(&texBuf, "{d} celestials", .{self._debugEntityCount});
         raylib.DrawText(text, @floatToInt(i32, self.ecs.window.size.x - 150), @floatToInt(i32, self.ecs.window.size.y - 30), 20, raylib.GREEN);
 
-        // var buf : [4096]u8 = undefined;
-        // const text = try std.fmt.bufPrintZ(&buf, "", .{});
         if (raylib.GuiButton(.{ .x = 20, .y = self.ecs.window.size.y - 50, .width = 70, .height = 30 }, if (!self._drawDebugArrows) "[ ] debug" else "[x] debug")) {
             self._drawDebugArrows = !self._drawDebugArrows;
             var gravitySystem = self.ecs.getSystem(zecsi.baseSystems.GridPlacementSystem).?;
