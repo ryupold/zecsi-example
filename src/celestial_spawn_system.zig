@@ -27,7 +27,9 @@ pub const CelestialSpawnSystem = struct {
     mouse: PointerDragger = PointerDragger{ .button = .MOUSE_BUTTON_LEFT },
     rng: std.rand.Random = random.random(),
     spawnTimer: zecsi.utils.Timer = .{ .repeat = true, .time = 0.1 },
-    spawnPlanetCount: usize = 200,
+    spawnPlanetCount: usize = 1000,
+    spawnMinRange: f32 = 1000,
+    spawnMaxRange: f32 = 5000,
     spawnSun: bool = true,
 
     pub fn init(ecs: *ECS) !@This() {
@@ -73,8 +75,11 @@ pub const CelestialSpawnSystem = struct {
             .position = position,
             .velocity = velocity,
         };
-        var entity = try self.ecs.create(.{ appearance, celestial, body });
-        return entity.id;
+        var entity = try self.ecs.create();
+        try self.ecs.put(entity, appearance);
+        try self.ecs.put(entity, celestial);
+        try self.ecs.put(entity, body);
+        return entity;
     }
 
     fn spawnPlanets(self: *@This()) !void {
@@ -135,27 +140,25 @@ pub const CelestialSpawnSystem = struct {
     }
 
     fn createSun(self: *@This(), position: raylib.Vector2) !void {
-        var eID = try self.spawnCelestial(
+        _ = try self.spawnCelestial(
             .{ .name = "Sun", .bodyTex = raylib.LoadTexture("assets/images/celestials/sun.png") },
             1000,
             50,
             position,
             .{ .x = 0, .y = 0 },
         );
-        var celestial = self.ecs.getOnePtr(eID, components.Celestial);
-        _ = celestial;
     }
 
     pub fn resetCelestials(self: *@This()) !void {
-        var cam = self.ecs.getPtr(raylib.Camera2D, self.camera.camRef).?;
+        var cam = self.ecs.getPtr(self.camera.camera, raylib.Camera2D).?;
         cam.target = .{};
 
-        var enities = self.ecs.query(.{components.Celestial});
+        var enities = self.ecs.query(.{.{ "celestial", components.Celestial }});
         var toDelete = std.ArrayList(zecsi.EntityID).init(self.ecs.allocator);
         defer toDelete.deinit();
 
-        while (enities.next()) |entity| {
-            try toDelete.append(entity.id);
+        while (enities.next()) |entry| {
+            try toDelete.append(entry.entity);
         }
 
         for (toDelete.items) |d| {
@@ -168,7 +171,7 @@ pub const CelestialSpawnSystem = struct {
 
         var i: usize = 0;
         while (i < self.spawnPlanetCount) : (i += 1) {
-            const pos = Vector2.randomOnUnitCircle(self.rng).scale(zecsi.utils.randomF32(self.rng, 500, 2000));
+            const pos = Vector2.randomOnUnitCircle(self.rng).scale(zecsi.utils.randomF32(self.rng, self.spawnMinRange, self.spawnMaxRange));
             const force = pos.scale(-1).rotate(raylib.PI / 2).normalize().scale(zecsi.utils.randomF32(self.rng, 50, 150));
             // Vector2.randomInUnitCircle(self.rng).scale(zecsi.utils.randomF32(self.rng, 300, 400));
 
@@ -177,17 +180,17 @@ pub const CelestialSpawnSystem = struct {
     }
 
     pub fn ui(self: *@This(), _: f32) !void {
-        self.spawnSun = raylib.GuiCheckBox(.{ .x = 20, .y = self.ecs.window.size.y - 200, .width = 20, .height = 20 }, "spawn sun", self.spawnSun);
+        // self.spawnSun = raylib.uiCheckBox("spawn sun", .{ .x = 20, .y = self.ecs.window.size.y - 200, .width = 20, .height = 20 }, self.spawnSun);
 
-        const maxCount: f32 = 1000;
-        var buf: [4096]u8 = undefined;
-        var sliderRect = raylib.Rectangle{ .x = 20, .y = self.ecs.window.size.y - 150, .width = 150, .height = 30 };
-        const sliderValue = raylib.GuiSlider(sliderRect, "1", "1000", @intToFloat(f32, self.spawnPlanetCount), 1, @floatToInt(i32, maxCount));
-        self.spawnPlanetCount = @floatToInt(usize, sliderValue);
-        sliderRect.x += (sliderRect.width * sliderValue / maxCount);
-        raylib.GuiLabel(sliderRect, try std.fmt.bufPrintZ(&buf, "{d}", .{self.spawnPlanetCount}));
+        // const maxCount: f32 = 1000;
+        // var buf: [4096]u8 = undefined;
+        // var sliderRect = raylib.Rectangle{ .x = 20, .y = self.ecs.window.size.y - 150, .width = 150, .height = 30 };
+        // const sliderValue = raylib.GuiSlider(sliderRect, "1", "1000", @intToFloat(f32, self.spawnPlanetCount), 1, @floatToInt(i32, maxCount));
+        // self.spawnPlanetCount = @floatToInt(usize, sliderValue);
+        // sliderRect.x += (sliderRect.width * sliderValue / maxCount);
+        // raylib.GuiLabel(sliderRect, try std.fmt.bufPrintZ(&buf, "{d}", .{self.spawnPlanetCount}));
 
-        if (raylib.GuiButton(.{ .x = 20, .y = self.ecs.window.size.y - 100, .width = 70, .height = 30 }, "reset")) {
+        if (zecsi.baseSystems.uiButton( "reset", .{ .x = 20, .y = self.ecs.window.size.y - 100, .width = 70, .height = 30 }, .{})) {
             try self.resetCelestials();
         }
     }

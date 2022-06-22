@@ -33,13 +33,17 @@ pub const CelestialSystem = struct {
     pub fn deinit(_: *@This()) void {}
 
     pub fn update(self: *@This(), _: f32) !void {
-        var enities = self.ecs.query(.{ components.Celestial, components.PhysicsBody, components.Appearance });
+        var enities = self.ecs.query(.{
+            .{ "celestial", components.Celestial },
+            .{ "body", components.PhysicsBody },
+            .{ "appearance", components.Appearance },
+        });
         self._debugEntityCount = 0;
-        while (enities.next()) |entity| {
+        while (enities.next()) |entry| {
             self._debugEntityCount += 1;
-            const celestial = entity.getData(self.ecs, components.Celestial).?;
-            const body = entity.getData(self.ecs, components.PhysicsBody).?;
-            const appearance = entity.getData(self.ecs, components.Appearance).?;
+            const celestial = entry.celestial;
+            const body = entry.body;
+            const appearance = entry.appearance;
 
             const src: Rectangle = .{
                 .x = 0,
@@ -79,7 +83,11 @@ pub const CelestialSystem = struct {
         const text = try std.fmt.bufPrintZ(&texBuf, "{d} celestials", .{self._debugEntityCount});
         raylib.DrawText(text, @floatToInt(i32, self.ecs.window.size.x - 150), @floatToInt(i32, self.ecs.window.size.y - 30), 20, raylib.GREEN);
 
-        if (raylib.GuiButton(.{ .x = 20, .y = self.ecs.window.size.y - 50, .width = 70, .height = 30 }, if (!self._drawDebugArrows) "[ ] debug" else "[x] debug")) {
+        if (zecsi.baseSystems.uiButton(
+            if (!self._drawDebugArrows) "[ ] debug" else "[x] debug",
+            .{ .x = 20, .y = self.ecs.window.size.y - 50, .width = 70, .height = 30 },
+            .{},
+        )) {
             self._drawDebugArrows = !self._drawDebugArrows;
             var gravitySystem = self.ecs.getSystem(zecsi.baseSystems.GridPlacementSystem).?;
             gravitySystem.isGridVisible = self._drawDebugArrows;

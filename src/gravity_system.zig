@@ -40,16 +40,22 @@ pub const GravitySystem = struct {
     pub fn update(self: *@This(), _: f32) !void {
         // raylib.UpdatePhysics();
 
-        var enities = self.ecs.query(.{Celestial});
-        while (enities.next()) |entity| {
-            var celestial = entity.getData(self.ecs, Celestial).?;
-            var body = entity.getData(self.ecs, components.PhysicsBody).?;
+        var enities = self.ecs.query(.{
+            .{ "celestial", Celestial },
+            .{ "body", components.PhysicsBody },
+        });
+        while (enities.next()) |entry| {
+            var celestial = entry.celestial;
+            var body = entry.body;
             const mass = celestial.mass();
-            var otherEnities = self.ecs.query(.{Celestial});
+            var otherEnities = self.ecs.query(.{
+                .{ "celestial", Celestial },
+                .{ "body", components.PhysicsBody },
+            });
             while (otherEnities.next()) |other| {
-                if (entity.id == other.id) continue;
-                var otherBody = other.getData(self.ecs, components.PhysicsBody) orelse continue;
-                var otherCelestial = other.getData(self.ecs, Celestial).?;
+                if (entry.entity == other.entity) continue;
+                var otherBody = other.body;
+                var otherCelestial = other.celestial;
 
                 //calculate gravity force to other celestial
                 const delta = body.position.sub(otherBody.position);
@@ -69,7 +75,7 @@ pub const GravitySystem = struct {
                         celestial.radius += celestial.radius * (otherCelestial.mass() / celestial.mass());
                         //TODO: what about density?
                         body.mass = celestial.mass();
-                        _ = try self.ecs.destroy(other);
+                        _ = try self.ecs.destroy(other.entity);
 
                         body.velocity = body.velocity.scale(1 - (otherBody.mass / body.mass)).add(otherBody.velocity.scale(otherBody.mass / body.mass));
                     }

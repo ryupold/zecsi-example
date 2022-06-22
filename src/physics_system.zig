@@ -23,9 +23,9 @@ pub const PhysicsSystem = struct {
     pub fn deinit(_: *@This()) void {}
 
     pub fn update(self: *@This(), dt: f32) !void {
-        var enities = self.ecs.query(.{components.PhysicsBody});
-        while (enities.next()) |entity| {
-            var body = entity.getData(self.ecs, components.PhysicsBody).?;
+        var enities = self.ecs.query(.{.{ "body", components.PhysicsBody }});
+        while (enities.next()) |entry| {
+            var body = entry.body;
             if (body.force.x != 0 and body.force.y != 0) {
                 const force = body.force.scale(1 / body.mass);
                 body.velocity.addSet(force.scale(dt));
@@ -35,5 +35,4 @@ pub const PhysicsSystem = struct {
             body.position.addSet(body.velocity.scale(dt));
         }
     }
-
 };

@@ -46,13 +46,17 @@ pub const CelestialSystem3D = struct {
 
         const cam = self.ecs.getPtr(raylib.Camera3D, self.cameraSystem.camRef).?.*;
 
-        var enities = self.ecs.query(.{ components.Celestial, components.PhysicsBody, components.Appearance });
+        var enities = self.ecs.query(.{
+            .{ "celestial", components.Celestial },
+            .{ "physicsBody", components.PhysicsBody },
+            .{ "appearance", components.Appearance },
+        });
         self._debugEntityCount = 0;
-        while (enities.next()) |entity| {
+        while (enities.next()) |entry| {
             self._debugEntityCount += 1;
-            const celestial = entity.getData(self.ecs, components.Celestial).?;
-            const body = entity.getData(self.ecs, components.PhysicsBody).?;
-            const appearance = entity.getData(self.ecs, components.Appearance).?;
+            const celestial = entry.celestial;
+            const body = entry.physicsBody;
+            const appearance = entry.appearance;
 
             // raylib.DrawSphereEx(
             //     body.position.x0z(),
