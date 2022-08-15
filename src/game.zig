@@ -20,7 +20,7 @@ pub fn start(ecs: *ECS) !void {
     _ = try ecs.registerSystem(base.AssetSystem);
     _ = try ecs.registerSystem(base.GridPlacementSystem);
     var cameraSystem = try ecs.registerSystem(CameraSystem);
-    cameraSystem.initMouseDrag(base.CameraMouseDrag{ .button = .MOUSE_BUTTON_MIDDLE });
+    cameraSystem.initMouseDrag(base.CameraMouseDrag{ .button = .MOUSE_BUTTON_RIGHT });
     cameraSystem.initMouseZoomScroll(base.CameraScrollZoom{ .factor = 0.1 });
     cameraSystem.initTouchZoomAndDrag(base.TwoFingerZoomAndDrag{ .factor = 0.5 });
 
