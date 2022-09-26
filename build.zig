@@ -28,7 +28,7 @@ pub fn build(b: *std.build.Builder) !void {
                 return error.SysRootExpected;
             }
             const lib = b.addStaticLibrary(APP_NAME, "src/web.zig");
-            lib.addIncludeDir(raylibSrc);
+            lib.addIncludePath(raylibSrc);
 
             const emcc_file = switch (b.host.target.os.tag) {
                 .windows => "emcc.bat",
@@ -102,9 +102,9 @@ pub fn build(b: *std.build.Builder) !void {
             lib.setBuildMode(mode);
             lib.defineCMacro("__EMSCRIPTEN__", "1");
             std.log.info("emscripten include path: {s}", .{include_path});
-            lib.addIncludeDir(include_path);
-            lib.addIncludeDir(zesciSrc ++ "raylib/");
-            lib.addIncludeDir(raylibSrc);
+            lib.addIncludePath(include_path);
+            lib.addIncludePath(zesciSrc ++ "raylib/");
+            lib.addIncludePath(raylibSrc);
 
             lib.setOutputDir(webCachedir);
             lib.install();
@@ -169,9 +169,9 @@ pub fn build(b: *std.build.Builder) !void {
             const rayBuild = @import("src/zecsi/raylib/raylib/src/build.zig");
             const raylib = rayBuild.addRaylib(b, target);
             exe.linkLibrary(raylib);
-            exe.addIncludeDir(raylibSrc);
-            exe.addIncludeDir(raylibSrc ++ "extras/");
-            exe.addIncludeDir(zesciSrc ++ "raylib/");
+            exe.addIncludePath(raylibSrc);
+            exe.addIncludePath(raylibSrc ++ "extras/");
+            exe.addIncludePath(zesciSrc ++ "raylib/");
             exe.addCSourceFile(zesciSrc ++ "raylib/marshal.c", &.{});
 
             switch (raylib.target.getOsTag()) {
@@ -185,7 +185,7 @@ pub fn build(b: *std.build.Builder) !void {
                     exe.linkFramework("IOKit");
                 },
                 .linux => {
-                    exe.addLibPath("/usr/lib64/");
+                    exe.addLibraryPath("/usr/lib64/");
                     exe.linkSystemLibrary("GL");
                     exe.linkSystemLibrary("rt");
                     exe.linkSystemLibrary("dl");
