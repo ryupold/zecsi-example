@@ -83,7 +83,7 @@ pub const CelestialSystem = struct {
         const text = try std.fmt.bufPrintZ(&texBuf, "{d} celestials", .{self._debugEntityCount});
         raylib.DrawText(text, @floatToInt(i32, self.ecs.window.size.x - 150), @floatToInt(i32, self.ecs.window.size.y - 30), 20, raylib.GREEN);
 
-        if (zecsi.baseSystems.uiButton(
+        if (zecsi.ui.uiButton(
             if (!self._drawDebugArrows) "[ ] debug" else "[x] debug",
             .{ .x = 20, .y = self.ecs.window.size.y - 50, .width = 70, .height = 30 },
             .{},
