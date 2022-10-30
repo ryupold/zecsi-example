@@ -131,6 +131,8 @@ pub fn build(b: *std.build.Builder) !void {
                 "-l" ++ APP_NAME,
                 "--shell-file",
                 shell,
+                "--js-library",
+                "src/zecsi/emscripten/lib.js",
                 "-DPLATFORM_WEB",
                 "-sUSE_GLFW=3",
                 "-sWASM=1",
@@ -154,7 +156,7 @@ pub fn build(b: *std.build.Builder) !void {
                 // "-sMALLOC='emmalloc'",
                 // "--no-entry",
                 "-sEXPORTED_FUNCTIONS=['_malloc','_free','_main', '_emsc_main','_emsc_set_window_size']",
-                "-sEXPORTED_RUNTIME_METHODS=ccall,cwrap",
+                "-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,allocateUTF8,free",
             });
 
             emcc.step.dependOn(&lib.step);
