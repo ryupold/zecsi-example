@@ -48,8 +48,8 @@ pub const CelestialSystem = struct {
             const src: Rectangle = .{
                 .x = 0,
                 .y = 0,
-                .width = @intToFloat(f32, appearance.bodyTex.width),
-                .height = @intToFloat(f32, appearance.bodyTex.height),
+                .width = @as(f32, @floatFromInt(appearance.bodyTex.width)),
+                .height = @as(f32, @floatFromInt(appearance.bodyTex.height)),
             };
             const dest: Rectangle = .{
                 .x = body.position.x,
@@ -81,7 +81,7 @@ pub const CelestialSystem = struct {
     pub fn ui(self: *@This(), _: f32) !void {
         var texBuf: [4096]u8 = undefined;
         const text = try std.fmt.bufPrintZ(&texBuf, "{d} celestials", .{self._debugEntityCount});
-        raylib.DrawText(text, @floatToInt(i32, self.ecs.window.size.x - 150), @floatToInt(i32, self.ecs.window.size.y - 30), 20, raylib.GREEN);
+        raylib.DrawText(text, @as(i32, @intFromFloat(self.ecs.window.size.x - 150)), @as(i32, @intFromFloat(self.ecs.window.size.y - 30)), 20, raylib.GREEN);
 
         if (zecsi.ui.uiButton(
             if (!self._drawDebugArrows) "[ ] debug" else "[x] debug",

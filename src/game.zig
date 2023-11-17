@@ -13,7 +13,7 @@ pub fn start(ecs: *ECS) !void {
     const allocator = ecs.allocator;
     _ = allocator; //<-- use this allocator
 
-    var random = std.rand.DefaultPrng.init(@intCast(u64, std.time.milliTimestamp()));
+    var random = std.rand.DefaultPrng.init(@as(u64, @intCast(std.time.milliTimestamp())));
     const rng = random.random();
 
     // these are some usefull base systems

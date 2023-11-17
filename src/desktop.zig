@@ -29,20 +29,16 @@ pub fn main() anyerror!void {
     log.info("current path: {s}", .{cwd});
 
     //remove to prevent resizing of window
-    r.SetConfigFlags(.FLAG_WINDOW_RESIZABLE);
+    r.SetConfigFlags(.{ .FLAG_WINDOW_RESIZABLE = true });
     var frame: usize = 0;
     var lastWindowSize: struct { w: i32 = 0, h: i32 = 0 } = .{};
 
     // game start/stop
     log.info("starting game...", .{});
-    try game.init(allocator, .{
-        .gameName = "zecsi-example",
-        .cwd = cwd,
-        .initialWindowSize = .{
-            .width = 800,
-            .height = 800,
-        }
-    });
+    try game.init(allocator, .{ .gameName = "zecsi-example", .cwd = cwd, .initialWindowSize = .{
+        .width = 800,
+        .height = 800,
+    } });
 
     try @import("game.zig").start(game.getECS());
 
