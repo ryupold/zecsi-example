@@ -108,7 +108,7 @@ pub const CelestialSpawnSystem = struct {
         //         veloText,
         //         center.x,
         //         center.y,
-        //         @floatToInt(i32, self.camera.screenLengthToWorld(12)),
+        //         @as(i32, @intFromFloat(self.camera.screenLengthToWorld(12))),
         //         raylib.GREEN,
         //     );
 
@@ -190,7 +190,7 @@ pub const CelestialSpawnSystem = struct {
         // sliderRect.x += (sliderRect.width * sliderValue / maxCount);
         // raylib.GuiLabel(sliderRect, try std.fmt.bufPrintZ(&buf, "{d}", .{self.spawnPlanetCount}));
 
-        if (zecsi.ui.uiButton( "reset", .{ .x = 20, .y = self.ecs.window.size.y - 100, .width = 70, .height = 30 }, .{})) {
+        if (zecsi.ui.uiButton("reset", .{ .x = 20, .y = self.ecs.window.size.y - 100, .width = 70, .height = 30 }, .{})) {
             try self.resetCelestials();
         }
     }
