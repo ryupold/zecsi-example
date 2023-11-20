@@ -1,5 +1,5 @@
 const std = @import("std");
-const zecsi = @import("zecsi/zecsi.zig");
+const zecsi = @import("zecsi");
 const ECS = zecsi.ECS;
 const base = zecsi.baseSystems;
 const raylib = zecsi.raylib;

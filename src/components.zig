@@ -1,5 +1,5 @@
 const std = @import("std");
-const zecsi = @import("zecsi/zecsi.zig");
+const zecsi = @import("zecsi");
 const raylib = zecsi.raylib;
 // const PhysicsBody = raylib.PhysicsBodyData;
 const Texture2D = raylib.Texture2D;
