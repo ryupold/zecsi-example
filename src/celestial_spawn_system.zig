@@ -75,7 +75,7 @@ pub const CelestialSpawnSystem = struct {
             .position = position,
             .velocity = velocity,
         };
-        var entity = try self.ecs.create();
+        const entity = try self.ecs.create();
         try self.ecs.put(entity, appearance);
         try self.ecs.put(entity, celestial);
         try self.ecs.put(entity, body);
