@@ -13,9 +13,6 @@ pub fn start(ecs: *ECS) !void {
     const allocator = ecs.allocator;
     _ = allocator; //<-- use this allocator
 
-    var random = std.rand.DefaultPrng.init(@as(u64, @intCast(std.time.milliTimestamp())));
-    const rng = random.random();
-
     // these are some usefull base systems
     _ = try ecs.registerSystem(base.AssetSystem);
     _ = try ecs.registerSystem(base.GridPlacementSystem);
@@ -28,6 +25,5 @@ pub fn start(ecs: *ECS) !void {
     _ = try ecs.registerSystem(@import("gravity_system.zig").GravitySystem);
     _ = try ecs.registerSystem(CelestialSystem);
     _ = try ecs.registerSystem(PhysicsSystem);
-    var spawnSystem = try ecs.registerSystem(CelestialSpawnSystem);
-    spawnSystem.rng = rng;
+    _ = try ecs.registerSystem(CelestialSpawnSystem);
 }
