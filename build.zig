@@ -46,7 +46,7 @@ pub fn build(b: *std.build.Builder) !void {
                 .link_libc = true,
             });
             const raylib = @import("src/zecsi/src/raylib/build.zig");
-            raylib.addTo(b, exe_tests, exe_tests.target, exe_tests.optimize);
+            raylib.addTo(b, exe_tests, exe_tests.target, exe_tests.optimize, .{});
 
             const test_step = b.step("test", "Run unit tests");
             test_step.dependOn(&exe_tests.step);
