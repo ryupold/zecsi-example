@@ -106,6 +106,7 @@ pub const CelestialSpawnSystem = struct {
                 const radius = zecsi.utils.randomF32(self.rng, 5, 30);
                 const density = zecsi.utils.randomF32(self.rng, 30, 30);
                 try self.createPlanet(radius, density, from, velocity);
+                std.log.info("new planet spawned", .{});
             }
         }
     }
@@ -119,7 +120,7 @@ pub const CelestialSpawnSystem = struct {
         _ = try self.spawnCelestial(
             .{
                 .name = "Earth",
-                .bodyTex = (try self.assets.loadTexture("assets/images/celestials/earth.png")).asset.Texture2D,
+                .bodyTex = (try self.assets.loadTexture("assets/images/celestials/earth.png")).tex,
             },
             density,
             radius,
@@ -130,7 +131,7 @@ pub const CelestialSpawnSystem = struct {
 
     fn createSun(self: *@This(), position: raylib.Vector2) !void {
         _ = try self.spawnCelestial(
-            .{ .name = "Sun", .bodyTex = raylib.LoadTexture("assets/images/celestials/sun.png") },
+            .{ .name = "Sun", .bodyTex = (try self.assets.loadTexture("assets/images/celestials/sun.png")).tex },
             1000,
             50,
             position,
